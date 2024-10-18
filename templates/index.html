@@ -4,107 +4,56 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Quini6 Prediction App</title>
-        <style>
-            /* Add a basic color scheme and typography */
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f9f9f9;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 20px;
-            }
-            h1,
-            h2 {
-                color: #333;
-            }
-            .draw-list {
-                font-size: 0.8em;
-                margin-top: 20px;
-                padding: 20px;
-                background-color: #fff;
-                border: 1px solid #ddd;
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            .draw-item {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                margin-bottom: 10px;
-            }
-            .draw {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                margin-bottom: 20px;
-            }
-            .draw ul {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                margin-right: 20px;
-            }
-
-            .draw ul li {
-                margin-bottom: 10px;
-            }
-            .draw-item .team {
-                margin-right: 10px;
-            }
-            .team {
-                display: inline-flex;
-                align-items: center;
-                margin-right: 10px;
-            }
-            .team img {
-                width: 30px;
-                height: 30px;
-                margin-right: 10px;
-            }
-        </style>
+        <script src="https://cdn.tailwindcss.com"></script>
     </head>
-    <body>
-        <header>
-            <h1>Welcome to the Quini6 Prediction App!</h1>
-        </header>
-        <main>
+    <body class="bg-white">
+        <div class="bg-blue-500 text-white text-center py-4">
+            <h1 class="text-4xl font-bold">Quini 6 Prediction App</h1>
+            <p class="text-lg">Created by León Maffrand</p>
+        </div>
+        <div class="text-center my-8">
+            <h2 class="text-2xl font-bold">Last Draw</h2>
+        </div>
+        <div class="flex justify-center space-x-8">
             <!-- Loop through each draw -->
             {% for draw in current_draws_mapped %}
-            <section class="draw">
-                <h2>Set {{ loop.index }}</h2>
+            <div class="bg-blue-400 p-4 rounded-lg">
+                <h2 class="col-2x1 font-bold text-white">
+                    Set {{ loop.index }}
+                </h2>
                 <!-- Loop through each team in the draw -->
-                <ul>
+                <ul class="space-y-4">
                     {% for team in draw %}
-                    <li class="team">
+                    <li class="flex items-center space-x-4">
                         <img
+                            class="w-8 h-8"
                             src="{{ team['flag'] }}"
                             alt="{{ team['team'] }} flag"
                             height="30px" />
-                        <span>{{ team['team'] }}</span>
+                        <span class="text-white">{{ team['team'] }}</span>
                     </li>
                     {% endfor %}
                 </ul>
-            </section>
+            </div>
             {% endfor %}
             <form action="/save_draw" method="POST">
-                <button type="submit">Save Most Recent Draw</button>
+                <button type="submit" class="btn btn-primary">
+                    Save Most Recent Draw
+                </button>
             </form>
             <!-- Draws Section -->
-            <section class="draw-list">
+            <div class="bg-blue-400 p-4 rounded-lg">
                 <h2>Stored Draws</h2>
                 {% for draw in previous_draws %}
                 <h2>Draw {{ loop.index }}</h2>
-                <div class="draw-item">
+                <div class="space-y-4">
                     <strong>Set 1:</strong>
                     <ul>
                         {% for entry in draw.draw_set_1 %}
-                        <li class="draw">
-                            <div class="team">
+                        <li class="space-y-4">
+                            <div class="flex items-center space-x-4">
                                 <img
+                                    class="w-8 h-8"
                                     src="{{ entry['flag'] }}"
                                     alt="{{ entry['team'] }} flag"
                                     height="30px" />
@@ -116,9 +65,10 @@
                     <strong>Set 2:</strong>
                     <ul>
                         {% for entry in draw.draw_set_2 %}
-                        <li class="draw">
-                            <div class="team">
+                        <li class="space-y-4">
+                            <div class="flex items-center space-x-4">
                                 <img
+                                    class="w-8 h-8"
                                     src="{{ entry['flag'] }}"
                                     alt="{{ entry['team'] }} flag"
                                     height="30px" />
@@ -130,9 +80,10 @@
                     <strong>Set 3:</strong>
                     <ul>
                         {% for entry in draw.draw_set_3 %}
-                        <li class="draw">
-                            <div class="team">
+                        <li class="space-y-4">
+                            <div class="flex items-center space-x-4">
                                 <img
+                                    class="w-8 h-8"
                                     src="{{ entry['flag'] }}"
                                     alt="{{ entry['team'] }} flag"
                                     height="30px" />
@@ -144,9 +95,10 @@
                     <strong>Set 4:</strong>
                     <ul>
                         {% for entry in draw.draw_set_4 %}
-                        <li class="draw">
-                            <div class="team">
+                        <li class="space-y-4">
+                            <div class="flex items-center space-x-4">
                                 <img
+                                    class="w-8 h-8"
                                     src="{{ entry['flag'] }}"
                                     alt="{{ entry['team'] }} flag"
                                     height="30px" />
@@ -157,7 +109,7 @@
                     </ul>
                 </div>
                 {% endfor %}
-            </section>
-        </main>
+            </div>
+        </div>
     </body>
 </html>
