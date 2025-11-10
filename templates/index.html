@@ -7,106 +7,123 @@
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
     <body class="bg-white">
+        <!-- Header Section -->
         <div class="bg-blue-500 text-white text-center py-4">
             <h1 class="text-4xl font-bold">Quini 6 Prediction App</h1>
             <p class="text-lg">Created by León Maffrand</p>
         </div>
+
+        <!-- Last Draw Section -->
         <div class="text-center my-8">
             <h2 class="text-2xl font-bold">Last Draw</h2>
         </div>
-        <div class="flex justify-center space-x-8">
-            <!-- Loop through each draw -->
-            {% for draw in current_draws_mapped %}
-            <div class="bg-blue-400 p-4 rounded-lg">
-                <h2 class="col-2x1 font-bold text-white">
-                    Set {{ loop.index }}
-                </h2>
-                <!-- Loop through each team in the draw -->
-                <ul class="space-y-4">
-                    {% for team in draw %}
-                    <li class="flex items-center space-x-4">
-                        <img
-                            class="w-8 h-8"
-                            src="{{ team['flag'] }}"
-                            alt="{{ team['team'] }} flag"
-                            height="30px" />
-                        <span class="text-white">{{ team['team'] }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
+
+        <!-- Main layout: draws and fixed side panel -->
+        <div class="flex">
+            <!-- Main Draws (scrollable) -->
+            <div class="flex-1 flex justify-center space-x-8 mb-8">
+                {% for draw in current_draws_mapped %}
+                <div class="bg-blue-400 p-4 rounded-lg shadow-md">
+                    <h2 class="text-xl font-bold text-white">Set {{ loop.index }}</h2>
+                    <ul class="space-y-2 mt-2">
+                        {% for team in draw %}
+                        <li class="flex items-center space-x-4">
+                            <img class="w-8 h-8" src="{{ team['flag'] }}" alt="{{ team['team'] }} flag" />
+                            <span class="text-white">{{ team['team'] }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            <!-- Fixed Side Panel: Most Frequent Countries Per Set -->
+            <div class="fixed right-0 top-0 h-full flex flex-col space-y-4 p-4 bg-gray-50 shadow-lg w-72 z-10 overflow-y-auto">
+                <div class="mb-2 text-center">
+                    <span class="text-lg font-bold text-gray-800">Statistics (Last 5 Draws)</span>
+                </div>
+                {% for set_num in range(4) %}
+                <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+                    <h2 class="text-md font-bold text-gray-800 mb-2">Set {{ set_num + 1 }}</h2>
+                    <ul class="space-y-2">
+                        {% for country in most_frequent_countries_per_set[set_num][:10] %}
+                        <li class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                {% if country.flag %}
+                                <img class="w-6 h-6" src="{{ country.flag }}" alt="{{ country.team }} flag" />
+                                {% endif %}
+                                <span class="text-gray-700">{{ country.team }}</span>
+                            </div>
+                            <span class="bg-blue-200 text-blue-800 px-2 py-1 rounded">{{ country.count }}</span>
+                        </li>
+                        {% endfor %}
+                        {% if most_frequent_countries_per_set[set_num]|length == 0 %}
+                        <li class="text-gray-500">No data available.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="flex justify-center mb-8">
             <form action="/save_draw" method="POST">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600">
                     Save Most Recent Draw
                 </button>
             </form>
-            <!-- Draws Section -->
-            <div class="bg-blue-400 p-4 rounded-lg">
-                <h2>Stored Draws</h2>
-                {% for draw in previous_draws %}
-                <h2>Draw {{ loop.index }}</h2>
-                <div class="space-y-4">
-                    <strong>Set 1:</strong>
-                    <ul>
-                        {% for entry in draw.draw_set_1 %}
-                        <li class="space-y-4">
-                            <div class="flex items-center space-x-4">
-                                <img
-                                    class="w-8 h-8"
-                                    src="{{ entry['flag'] }}"
-                                    alt="{{ entry['team'] }} flag"
-                                    height="30px" />
-                                <span>{{ entry['team'] }}</span>
-                            </div>
-                        </li>
+        </div>
+
+        <!-- Simulate Draw Button -->
+        <div class="flex justify-center mb-8">
+            <a href="{{ url_for('simulate_draw') }}" class="bg-green-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-green-600">
+                Simulate Your Own Draw
+            </a>
+        </div>
+
+        <!-- Stored Draws Section -->
+        <div class="text-center my-8">
+            <h2 class="text-2xl font-bold">Stored Draws</h2>
+        </div>
+
+        <!-- Dropdown for selecting month -->
+        <div class="flex justify-center mb-4">
+            <form method="GET" action="/">
+                <select name="month" class="border border-gray-300 rounded-md px-4 py-2">
+                    <option value="">Select a Month</option>
+                    {% for month_year in grouped_draws.keys() %}
+                    <option value="{{ month_year }}" {% if month_year == selected_month %}selected{% endif %}>
+                        {{ month_year }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600">
+                    Filter
+                </button>
+            </form>
+        </div>
+
+        <!-- Display filtered stored draws -->
+        <div class="flex justify-center">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl">
+                {% for draw in filtered_draws %}
+                <div class="bg-blue-300 p-4 rounded-lg shadow-md text-center">
+                    <h2 class="text-lg font-bold text-blue-800">Draw {{ loop.index }}</h2>
+                    <p class="text-sm text-blue-600">Save date: {{ draw.draw_date.strftime('%Y-%m-%d') }} ({{ draw.draw_date.strftime('%A') }})</p>
+                    <p class="text-sm text-blue-600">Draw date: {{ draw.draw_date_rolled.strftime('%Y-%m-%d') }} ({{ draw.draw_date_rolled.strftime('%A') }})</p>
+                    <div class="mt-2 space-y-4">
+                        {% for i in range(1, 5) %}
+                        <strong class="text-blue-600">Set {{ i }}:</strong>
+                        <ul class="space-y-1">
+                            {% for entry in draw['draw_set_' ~ i] %}
+                            <li class="flex items-center justify-center space-x-2">
+                                <img class="w-6 h-6" src="{{ entry['flag'] }}" alt="{{ entry['team'] }} flag" />
+                                <span class="text-blue-800">{{ entry['team'] }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
                         {% endfor %}
-                    </ul>
-                    <strong>Set 2:</strong>
-                    <ul>
-                        {% for entry in draw.draw_set_2 %}
-                        <li class="space-y-4">
-                            <div class="flex items-center space-x-4">
-                                <img
-                                    class="w-8 h-8"
-                                    src="{{ entry['flag'] }}"
-                                    alt="{{ entry['team'] }} flag"
-                                    height="30px" />
-                                <span>{{ entry['team'] }}</span>
-                            </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    <strong>Set 3:</strong>
-                    <ul>
-                        {% for entry in draw.draw_set_3 %}
-                        <li class="space-y-4">
-                            <div class="flex items-center space-x-4">
-                                <img
-                                    class="w-8 h-8"
-                                    src="{{ entry['flag'] }}"
-                                    alt="{{ entry['team'] }} flag"
-                                    height="30px" />
-                                <span>{{ entry['team'] }}</span>
-                            </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    <strong>Set 4:</strong>
-                    <ul>
-                        {% for entry in draw.draw_set_4 %}
-                        <li class="space-y-4">
-                            <div class="flex items-center space-x-4">
-                                <img
-                                    class="w-8 h-8"
-                                    src="{{ entry['flag'] }}"
-                                    alt="{{ entry['team'] }} flag"
-                                    height="30px" />
-                                <span>{{ entry['team'] }}</span>
-                            </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
