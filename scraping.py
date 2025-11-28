@@ -5,7 +5,7 @@ from datetime import datetime
 
 # Scrape FIFA rankings from the website
 def scrape_fifa_rankings():
-    url = "https://football-ranking.com/fifa-rankings"
+    url = "https://www.sofascore.com/football/rankings/fifa"
     response = requests.get(url)
     response.raise_for_status()
 
@@ -13,15 +13,14 @@ def scrape_fifa_rankings():
     rankings = []
 
     # Parse the rankings table
-    table = soup.find('table', class_='ml-1 table table-striped table-bordered table-hover')
+    table = soup.find('table', class_='w_100% bd-cl_separate bd-sp_0 tbl_fixed')
     tbody = table.find('tbody')
 
     for row in tbody.find_all('tr')[:50]:
         columns = row.find_all('td')
-        if len(columns) > 2:
-            team = (columns[1].text.strip())[:-6]
-            flag = columns[1].find('img')['src']
-            rankings.append({'team': team, 'flag': flag})
+        team = columns[1].find('a').find('div', class_='d_flex ai_center gap_lg').find('div', class_='d_flex flex-d_column').find('span').text.strip()
+        flag = columns[1].find('a').find('div', class_='d_flex ai_center gap_lg').find('div', class_='w_2xl h_2xl').find('img')['src']
+        rankings.append({'team': team, 'flag': flag})
 
     return rankings
 
